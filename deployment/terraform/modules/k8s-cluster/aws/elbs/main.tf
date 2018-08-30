@@ -1,3 +1,5 @@
+
+/*
 resource "aws_elb" "api-elb" {
   name = "${var.haystack_cluster_name}-api-elb"
 
@@ -32,6 +34,7 @@ resource "aws_elb" "api-elb" {
     Name = "${var.haystack_cluster_name}-k8s-masters"
   }
 }
+*/
 
 resource "aws_elb" "monitoring-elb" {
   name = "${var.haystack_cluster_name}-monitoring-elb"
@@ -103,7 +106,7 @@ resource "aws_elb" "nodes-elb" {
   }
 }
 
-
+/*
 resource "aws_autoscaling_attachment" "master-1" {
   elb = "${aws_elb.api-elb.id}"
   autoscaling_group_name = "${var.master-1_asg_id}"
@@ -118,7 +121,7 @@ resource "aws_autoscaling_attachment" "master-3" {
   elb = "${aws_elb.api-elb.id}"
   autoscaling_group_name = "${var.master-3_asg_id}"
 }
-
+*/
 
 resource "aws_autoscaling_attachment" "nodes-api" {
   elb = "${aws_elb.nodes-elb.id}"

@@ -22,3 +22,11 @@ output "masters_iam-instance-profile_arn" {
 output "nodes_iam-instance-profile_arn" {
   value = "${aws_iam_instance_profile.nodes-profile.arn}"
 }
+
+output "aws_iam_role_policy_attachment_master-AmazonEKSClusterPolicy_arn" {
+  value = "${aws_iam_role_policy_attachment.master-AmazonEKSClusterPolicy.policy_arn}"
+}
+
+output "aws_iam_role_policy_attachment_master-AmazonEKSServicePolicy_arn" {
+  value = "${aws_iam_role_policy_attachment.master-AmazonEKSServicePolicy.policy_arn}"
+}

@@ -36,6 +36,7 @@ module "haystack-k8s" {
   k8s_dashboard_cname = "${local.k8s_dashboard_cname}"
   haystack_ui_cname = "${local.haystack_ui_cname}"
   graphite_node_port = "${var.graphite_node_port}"
+  amazon_account_id = "${var.amazon_account_id}"
 }
 
 module "k8s-addons" {

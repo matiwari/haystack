@@ -1,3 +1,5 @@
+/*
+
 variable "kops_executable_name" {}
 variable "k8s_version" {}
 variable "k8s_cluster_name" {}
@@ -15,3 +17,5 @@ variable "master_instance_volume" {}
 variable "aws_hosted_zone_id" {}
 variable "aws_nodes_subnet" {}
 variable "aws_utilities_subnet" {}
+
+*/

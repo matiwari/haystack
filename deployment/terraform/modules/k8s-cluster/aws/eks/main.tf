@@ -1,5 +1,15 @@
-/*
+resource "aws_eks_cluster" "master" {
+  name      = "${var.k8s_cluster_name}"
+  role_arn  = "${var.role_arn}"
 
+  vpc_config {
+    security_group_ids = ["${var.master_security_group_ids}"]
+    subnet_ids         = ["${var.aws_subnet_ids}"]
+  }
+}
+
+
+/*
 locals {
   rendered_config_path = "${path.module}/manifests/cluster-config.yaml"
   kops_public_key_path = "${path.module}/manifests/aws_key_pair_kubernetes.haystack-k8s.com-public_key"
@@ -32,8 +42,11 @@ data "template_file" "cluster_config" {
     aws_network_cidr = "${data.aws_vpc.haystack_deployment_vpc.cidr_block}"
   }
 }
+*/
 
 //creating the cluster for the first time
+
+/*
 resource "null_resource" "create_cluster_configuration" {
   provisioner "local-exec" {
     command = "cat > ${local.rendered_config_path} <<EOL\n${data.template_file.cluster_config.rendered}EOL"
@@ -73,6 +86,4 @@ resource "null_resource" "update_cluster" {
   depends_on = [
     "null_resource.create_cluster_configuration"]
 }
-
-
 */

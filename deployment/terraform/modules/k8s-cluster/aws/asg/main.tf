@@ -1,14 +1,15 @@
 //we can't currently update the cluster name, TODO: make it configurable
 locals {
-  k8s_master_1_instance_group_name = "master-${var.aws_zone}-1"
-  k8s_master_2_instance_group_name = "master-${var.aws_zone}-2"
-  k8s_master_3_instance_group_name = "master-${var.aws_zone}-3"
+  //k8s_master_1_instance_group_name = "master-${var.aws_zone}-1"
+  //k8s_master_2_instance_group_name = "master-${var.aws_zone}-2"
+  //k8s_master_3_instance_group_name = "master-${var.aws_zone}-3"
   k8s_app-nodes_instance_group_name = "app-nodes"
   k8s_monitoring-nodes_instance_group_name = "monitoring-nodes"
+  amazon_account_id = "${var.amazon_account_id}"
 }
 
 
-resource "aws_autoscaling_group" "master-1" {
+/*resource "aws_autoscaling_group" "master-1" {
   name = "${var.haystack_cluster_name}-master-1"
   launch_configuration = "${aws_launch_configuration.master-1.id}"
   max_size = 1
@@ -67,8 +68,9 @@ resource "aws_autoscaling_group" "master-1" {
     "aws_ebs_volume.3-etcd-events",
     "aws_ebs_volume.3-etcd-main"]
 }
+*/
 
-resource "aws_autoscaling_group" "master-2" {
+/*resource "aws_autoscaling_group" "master-2" {
   name = "${var.haystack_cluster_name}-master-2"
   launch_configuration = "${aws_launch_configuration.master-2.id}"
   max_size = 1
@@ -124,9 +126,9 @@ resource "aws_autoscaling_group" "master-2" {
     "aws_ebs_volume.2-etcd-main",
     "aws_ebs_volume.3-etcd-events",
     "aws_ebs_volume.3-etcd-main"]
-}
+}*/
 
-resource "aws_autoscaling_group" "master-3" {
+/*resource "aws_autoscaling_group" "master-3" {
   name = "${var.haystack_cluster_name}-master-3"
   launch_configuration = "${aws_launch_configuration.master-3.id}"
   max_size = 1
@@ -181,10 +183,25 @@ resource "aws_autoscaling_group" "master-3" {
     "aws_ebs_volume.2-etcd-main",
     "aws_ebs_volume.3-etcd-events",
     "aws_ebs_volume.3-etcd-main"]
+}*/
+
+data "aws_ami" "eks-worker" {
+  filter {
+    name = "name"
+    values = [
+      "eks-worker-*"
+    ]
+  }
+
+  most_recent = true
+  owners = [
+    "${local.amazon_account_id}"
+  ]
 }
 
 resource "aws_autoscaling_group" "app-nodes" {
-  name = "${var.haystack_cluster_name}-app-nodes"
+  name = "${var.haystack_cluster_name}-eks-app-nodes"
+  desired_capacity = "${var.app-nodes_instance_count}"
   launch_configuration = "${aws_launch_configuration.app-nodes.id}"
   max_size = "${var.app-nodes_instance_count}"
   min_size = "${var.app-nodes_instance_count}"
@@ -209,25 +226,27 @@ resource "aws_autoscaling_group" "app-nodes" {
     },
     {
       key = "Role"
-      value = "${var.haystack_cluster_name}-k8s-app-nodes"
+      value = "${var.haystack_cluster_name}-eks-app-nodes"
       propagate_at_launch = true
     },
     {
       key = "Name"
-      value = "${var.haystack_cluster_name}-k8s-app-nodes"
+      value = "${var.haystack_cluster_name}-eks-app-nodes"
       propagate_at_launch = true
     },
     //these tags are required by protokube(kops) to set up kubecfg on that host, change with caution
-    {
+   /* {
       key = "k8s.io/cluster-autoscaler/node-template/label/kops.k8s.io/instancegroup"
       value = "${local.k8s_app-nodes_instance_group_name}"
       propagate_at_launch = true
     },
+
     {
       key = "KubernetesCluster"
       value = "${var.k8s_cluster_name}"
       propagate_at_launch = true
     }
+    */
 
   ]
 }
@@ -267,6 +286,7 @@ resource "aws_autoscaling_group" "monitoring-nodes" {
       propagate_at_launch = true
     },
     //these tags are required by protokube(kops) to set up kubecfg on that host, change with caution
+    /*
     {
       key = "k8s.io/cluster-autoscaler/node-template/label/kops.k8s.io/instancegroup"
       value = "${local.k8s_monitoring-nodes_instance_group_name}"
@@ -277,19 +297,21 @@ resource "aws_autoscaling_group" "monitoring-nodes" {
       value = "${var.k8s_cluster_name}"
       propagate_at_launch = true
     }
+    */
 
   ]
 }
 
-data "template_file" "master-1-user-data" {
+/*data "template_file" "master-1-user-data" {
   template = "${file("${path.module}/templates/k8s_master_user-data.tpl")}"
   vars {
     cluster_name = "${var.k8s_cluster_name}"
     s3_bucket_name = "${var.s3_bucket_name}"
     instance_group_name = "${local.k8s_master_1_instance_group_name}"
   }
-}
-resource "aws_launch_configuration" "master-1" {
+}*/
+
+/*resource "aws_launch_configuration" "master-1" {
   name_prefix = "${var.haystack_cluster_name}-master-1"
   image_id = "${var.masters_ami}"
   instance_type = "${var.masters_instance_type}"
@@ -309,8 +331,9 @@ resource "aws_launch_configuration" "master-1" {
   lifecycle = {
     create_before_destroy = true
   }
-}
+}*/
 
+/*
 data "template_file" "master-2-user-data" {
   template = "${file("${path.module}/templates/k8s_master_user-data.tpl")}"
   vars {
@@ -372,7 +395,7 @@ resource "aws_launch_configuration" "master-3" {
     create_before_destroy = true
   }
 }
-
+*/
 
 data "template_file" "app-nodes-user-data" {
   template = "${file("${path.module}/templates/k8s_nodes_user-data.tpl")}"
@@ -386,14 +409,14 @@ data "template_file" "app-nodes-user-data" {
 
 resource "aws_launch_configuration" "app-nodes" {
   name_prefix = "app-nodes"
-  image_id = "${var.nodes_ami}"
+  image_id = "${data.aws_ami.eks-worker.image_id}"
   instance_type = "${var.app-nodes_instance_type}"
   key_name = "${var.aws_ssh_key}"
   iam_instance_profile = "${var.nodes_iam-instance-profile_arn}"
   security_groups = [
     "${var.nodes_security_groups}"]
   associate_public_ip_address = false
-  user_data = "${data.template_file.app-nodes-user-data.rendered}"
+  user_data = "${base64encode(data.template_file.app-nodes-user-data.rendered)}"
 
   root_block_device = {
     volume_type = "gp2"
@@ -415,22 +438,25 @@ data "template_file" "monitoring-nodes-user-data" {
     nodes_instance_group = "${local.k8s_monitoring-nodes_instance_group_name}"
   }
 }
+
 resource "aws_launch_configuration" "monitoring-nodes" {
   name_prefix = "monitoring-nodes"
-  image_id = "${var.nodes_ami}"
+  image_id = "${data.aws_ami.eks-worker.image_id}"
   instance_type = "${var.monitoring-nodes_instance_type}"
   key_name = "${var.aws_ssh_key}"
   iam_instance_profile = "${var.nodes_iam-instance-profile_arn}"
   security_groups = [
     "${var.nodes_security_groups}"]
   associate_public_ip_address = false
-  user_data = "${data.template_file.monitoring-nodes-user-data.rendered}"
+  user_data = "${base64encode(data.template_file.monitoring-nodes-user-data.rendered)}"
 
+  /*
   root_block_device = {
     volume_type = "gp2"
     volume_size = "${var.monitoring-nodes_instance_volume}"
     delete_on_termination = true
   }
+  */
 
   lifecycle = {
     create_before_destroy = true
@@ -438,7 +464,7 @@ resource "aws_launch_configuration" "monitoring-nodes" {
 }
 
 
-resource "aws_ebs_volume" "1-etcd-events" {
+/*resource "aws_ebs_volume" "1-etcd-events" {
   availability_zone = "${var.aws_zone}"
   size = 20
   type = "gp2"
@@ -457,7 +483,9 @@ resource "aws_ebs_volume" "1-etcd-events" {
     "k8s.io/role/master" = "1"
   }
 }
+*/
 
+/*
 resource "aws_ebs_volume" "1-etcd-main" {
   availability_zone = "${var.aws_zone}"
   size = 20
@@ -557,3 +585,4 @@ resource "aws_ebs_volume" "3-etcd-main" {
     "k8s.io/role/master" = "1"
   }
 }
+*/

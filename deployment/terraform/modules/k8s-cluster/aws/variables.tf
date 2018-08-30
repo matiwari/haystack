@@ -10,7 +10,7 @@ variable "monitoring-nodes_instance_count" {}
 
 variable "app-node_instance_type" {}
 variable "app-node_instance_count" {}
-variable "master_instance_type" {}
+//variable "master_instance_type" {}
 
 variable "graphite_node_port" {}
 variable "reverse_proxy_port" {}
@@ -24,12 +24,17 @@ variable "logs_cname_enabled" {}
 variable "kops_executable_name" {}
 variable "kubectl_executable_name" {}
 variable "haystack_cluster_name" {}
+
+variable "amazon_account_id" {}
+
 variable "k8s_version" {
   default = "1.8.6"
 }
+/*
 variable "node_ami" {
   default = "ami-7ee37206"
 }
+*/
 
 variable "master_ami" {
   default = "ami-7ee37206"
@@ -38,9 +43,12 @@ variable "master_ami" {
 variable "monitoring-nodes_instance_volume" {
   default = 128
 }
+/*
 variable "master_instance_volume" {
   default = 128
 }
+*/
+
 variable "app-nodes_instance_volume" {
   default = 256
 }

@@ -6,6 +6,7 @@ variable "aws_domain_name" {}
 variable "kubectl_executable_name" {}
 variable "kops_executable_name" {}
 variable "haystack_cluster_name" {}
+variable "amazon_account_id" {}
 
 variable "kubewatch_enabled" {
   default = false
